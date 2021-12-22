@@ -1,0 +1,596 @@
+---select clause
+
+select first_name from customer;
+select first_name, last_name, email from customer;
+select * from customer;
+select first_name ||' '|| last_name, email from customer;
+select 4 * 4
+select 5 * 3
+
+---column Aliases
+
+select column_name AS alias_name from table_name;
+select first_name, last_name from customer;
+select first_name, last_name AS surname from customer;
+select last_name from customer
+select surname from customer
+select first_name, last_name surname from customer;
+
+---order by clause
+
+select first_name, last_name from customer order by first_name asc;
+select first_name, last_name from customer order by first_name
+select first_name, last_name from customer order by last_name desc;
+select first_name, last_name from customer order by first_name asc, last_name desc;
+select first_name, length (first_name) len from customer order by len desc;
+
+---- (num)-- after (first_name) is the table name for the lenght result
+
+
+SELECT 
+	first_name,
+	LENGTH(first_name) num
+FROM
+	customer
+ORDER BY 
+	num DESC;
+	
+	
+--- select distinct
+	
+create table distinct_demo 
+( id serial NOT NULL primary key, bcolor varchar, fcolor varchar);
+
+insert into distinct_demo (bcolor, fcolor) values
+    ('red', 'red'),
+	('red', 'red'),
+	('red', NULL),
+	(NULL, 'red'),
+	('red', 'green'),
+	('red', 'blue'),
+	('green', 'red'),
+	('green', 'blue'),
+	('green', 'green'),
+	('blue', 'red'),
+	('blue', 'green'),
+	('blue', 'blue');
+---^^ did not insert color into bcolor
+select id bcolor from distinct_demo;
+
+INSERT INTO distinct_demo (bcolor, fcolor)
+VALUES
+	('red', 'red'),
+	('red', 'red'),
+	('red', NULL),
+	(NULL, 'red'),
+	('red', 'green'),
+	('red', 'blue'),
+	('green', 'red'),
+	('green', 'blue'),
+	('green', 'green'),
+	('blue', 'red'),
+	('blue', 'green'),
+	('blue', 'blue');
+	-----^^ copied from web and it inserted color to field bcolor
+SELECT
+	id,
+	bcolor,
+	fcolor
+FROM
+	distinct_demo ;
+	
+select distinct bcolor from distinct_demo order by bcolor
+select bcolor, fcolor from distinct_demo order by bcolor, fcolor;
+select distinct bcolor, fcolor from distinct_demo order by bcolor, fcolor;
+select distinct on (bcolor) bcolor, fcolor from distinct_demo order by bcolor, fcolor;
+
+---WHERE clause ---and using-- operators ---(=,<>,and or, in between,like)---
+
+select last_name, first_name from customer where first_name = 'Jamie';
+
+select first_name, last_name from customer 
+where first_name = 'Jamie' and last_name = 'Rice'
+
+
+----^^ spelling of the name is case sensitive.-------
+
+select first_name, last_name from customer where last_name = 'Rodriguez' or first_name = 'Adam';
+
+select first_name, last_name from customer where first_name 
+in ('Ann', 'Anne', 'Annie');
+
+---The % is called a wildcard that matches any string. The 'Ann%' 
+pattern matches any string that starts with 'Ann'.
+
+select first_name, last_name from customer where first_name Like 'Ann%'
+
+
+---between operator--
+
+select first_name, Length (first_name) name_length from customer
+where first_name like 'A%' and length (first_name) between 3 and 5
+order by name_length;
+
+---This example finds customers whose first names start with 
+--Bra and last names are not Motley:----
+
+select first_name, last_name from customer where first_name 
+like 'Bra%' and last_name <> 'Motley';
+
+
+-------LIMIT clause------
+----LIMIT is an optional clause of the SELECT statement 
+--that constrains the number of rows returned by the query.----
+
+
+select film_id, title, release_year from film order by film_id
+limit 5;
+
+---below same query as above with different number to limit value---
+
+select film_id, title, release_year from film order by film_id
+limit 8;
+
+select film_id, title, release_year from film order by film_id
+limit 25;
+
+select film_id, title, release_year from film order by film_id 
+limit 4 offset 5
+
+----by cluase offset^^- it saying to put out the film id after (#) 
+--followed by offset.---
+
+--LIMIT CLAUSE	
+
+---For example, to get the top 10 most expensive films in terms of 
+--rental, you sort films by the rental rate in descending order 
+--and use the LIMIT clause to get the first 10 films. 
+--The following query illustrates the idea:
+
+select film_id, title, rental_rate from film
+order by rental_rate desc limit 10;
+
+-- below list film id in decending for last 10.
+select film_id, title, rental_rate from film
+order by film_id desc limit 10;
+
+------------FETCH CLAUSE------------
+
+SELECT film_id,title from film order by title fetch first row only;
+
+--below query is equivalent to above query--
+
+SELECT film_id,title from film order by title fetch first 1 row  only;
+
+--only fetch the first 5 rows
+SELECT film_id,title from film order by title fetch first 5 row only;
+
+---clause offset and -- fetch--
+
+SELECT film_id,title from film order by title 
+offset 5 rows fetch first 5 row only;
+
+--if you need to look at particular film id below is how to do it-- 
+--using offset and fetch.
+SELECT film_id,title from film order by title 
+offset 1 rows fetch first 1 row only;
+
+
+--IN clause--
+
+select customer_id, rental_id, return_date
+from rental where customer_id in (1,2)
+order by return_date desc;
+
+
+-- above query lists the data of customer id 1 and 2 with the multiple
+-- rental id and the date they reurned last to first
+
+select customer_id, rental_id, return_date from rental
+where customer_id not in (1,2);
+
+-- above query list all customer id beside id 1 and 2 and shows their
+--return date in ascending order because by default its ascending
+--unless specified.
+
+
+
+
+--Similar to the IN operator, you can use the not equal (<>) 
+--and AND operators to write the NOT IN operator:
+
+
+select customer_id, rental_id, return_date from rental 
+where customer_id <> 1 and customer_id <> 2;
+
+--This query returns ^^
+--the same output as above query that use the NOT IN operator.
+
+
+--The following query returns a list of customer ids
+-- from the rental table with the return date is 2005-05-27:
+
+select customer_id from rental
+where cast (return_date as DATE) = '2005-05-27'
+order by customer_id;
+
+--^^ what is cast?  
+--^^ why use AS?
+
+
+--BETWEEN CLAUSE--
+
+
+select customer_id, payment_id, amount from payment where amount 
+between 8 and 9;
+
+select customer_id, payment_id, amount from payment 
+where amount not between 8 and 9;
+
+__^^gives amount for whats not between 8 and 9.
+
+--If you want to check a value against of date ranges,
+--you should use the literal date in ISO 8601 format i.e., YYYY-MM-DD.
+--or example, to get the payment whose payment date is between 
+--2007-02-07 and 2007-02-15, you use the following query:
+
+
+select customer_id, payment_id, amount, payment_date from payment 
+where payment_date between '2007-02-07' and '2007-02-15';
+
+
+-- LIKE clause
+
+select first_name, last_name from customer where first_name like 'Jen%';
+
+
+--Percent sign ( %) matches any sequence of zero or more characters.
+--Underscore sign ( _)  matches any single character.
+
+-- the following query returns customers whose 
+--first name contains  er string like Jenifer, Kimberly, etc.
+
+select first_name, last_name from customer where first_name like '%er%'
+order by first_name;
+
+--You can combine the percent ( %) with underscore
+--( _) to construct a pattern as the following example:
+
+
+select first_name, last_name from customer where first_name like '_her%' 
+order by first_name;
+
+--^^ The pattern _her% matches any string that:
+--Begin with any single character (_)
+--And is followed by the literal string her.
+--And is ended with any number of characters.
+
+
+--NOT LIKE QUERY
+
+select first_name, last_name from customer where first_name
+not like 'jen%' order by first_name;
+
+--PostgreSQL supports the ILIKE operator that works like the LIKE 
+--operator. In addition, the ILIKE operator matches value 
+--case-insensitively. For example:
+
+select first_name, last_name from customer where first_name 
+ilike 'bar%';
+
+
+--Operator	Equivalent
+-- ~~	      like
+--  ~~*	       ILIKE
+--  !~~	        NOT LIKE 
+--  !~~*	  NOT ILIKE
+
+
+-- NULLL CLAUSE-- TO DO NULLL CLAUSE WE WILL BE CREATING A TABLE
+-- BECAUSE THE DVD RENTAL DOES NOT CONTAIL ANYTHING TO PRACTICE NULL
+--THEREFORE WE WILL CREATE A TABLE WITH NULL CLAUSE.
+
+create table contacts ( id int generated by default as identity,
+					  first_name varchar(50) not null,
+					   last_name varchar (50) not null,
+					   email varchar (255) not null,
+					   phone varchar(15),
+					   primary key (id) 
+					  );
+-- now we will insert data in to the table we created above
+
+insert into contacts (first_name, last_name, email, phone)
+values ('John', 'Doe', 'john.doe@example.com', null),
+       ('Lily', 'Bush', 'lily.bush@example.com','(408-234-2764)');
+	   
+--made a spelling mistake in creating table so had to alter table column 	   
+
+alter table contacts rename column phonr to phone
+
+
+	   
+--now we will use SELECT clause to run the queries
+
+select id, first_name, last_name, email, phone from contacts
+where phone = null;
+	   -- the above query wont result in any row because expression 
+	   --NULL=NULL returns false, this is  becaus NULL is not equal to any
+	   --value even itself.
+	   
+select id, first_name, last_name, email, phone
+from contacts where phone is NULL;
+
+select first_name from contacts
+
+select id, first_name, last_name, email, phone 
+from contacts where phone is not null;
+
+select count (*) from contacts
+
+
+------ how to delete duplicate data
+
+select * from contacts
+
+
+delete from contacts where id =1   
+
+--^^ basic query not for complexed problem
+
+ -- JOIN clause --
+ 
+ create table basket_a ( a int primary key, fruit_a varchar (100) not null);
+
+create table basket_b ( b int primary key, fruit_b varchar (100) not null);
+
+select * from basket_a
+select * from basket_b
+
+insert into basket_a (a, fruit_a) values
+	(1, 'Apple'),
+	(2, 'Orange'),
+	(3, 'Banana'),
+	(4, 'Cucumber');
+	
+insert into basket_b (b, fruit_b) values
+	(1, 'Orange'),
+	(2, 'Apple'),
+	(3, 'Watermelon'),
+	(4, 'Pear');
+	
+
+-- INNER JOIN
+
+select a, fruit_a, b, fruit_b from basket_a
+inner join basket_b on fruit_a = fruit_b;
+
+--LEFT JOIN
+
+select a, fruit_a, b, fruit_b from basket_a left join basket_b
+on fruit_a = fruit_b;
+
+--LEFT OUTER JOIN
+
+select a, fruit_a, b, fruit_b from basket_a 
+left join basket_b on fruit_a = fruit_b where b is null;
+
+
+--RIGHT JOIN
+
+select a, fruit_a, b, fruit_b from basket_a
+right join basket_b on fruit_a = fruit_b;
+
+
+--RIGHT JOIN and NULLL--
+
+--Similarly, you can get rows from the right table that do not 
+--have matching rows from the left table by adding a WHERE clause 
+--as follows:
+
+select a, fruit_a, b, fruit_b from basket_a right join basket_b
+on fruit_a = fruit_b where a is null;
+
+
+--The full outer join or full join returns a result set that contains
+--all rows from both left and right tables, with the matching rows from
+--both sides if available. In case there is no match, the columns of 
+--the table will be filled with NULL.
+
+select a, fruit_a, b, fruit_b from basket_a full outer join basket_b
+on fruit_a = fruit_b;
+
+
+--To return rows in a table that do not have matching rows in the other,
+--you use the full join with a WHERE clause like this:
+
+select a, fruit_a, b, fruit_b from basket_a full join basket_b
+on fruit_a = fruit_b where a is null or b is null;
+
+
+--- GROUP BY---
+
+--The GROUP BY clause divides the rows returned from the SELECT statement
+--into groups. For each group, you can apply an aggregate function e.g., 
+--SUM() to calculate the sum of items or COUNT() to get the number of items
+--in the groups.
+
+
+
+select customer_id from payment group by customer_id;
+
+--The following query uses the GROUP BY clause to get total amount
+--that each customer has been paid:
+select customer_id, sum (amount) from payment group by customer_id;
+
+--The following statement uses the ORDER BY clause with 
+--GROUP BY clause to sort the groups:
+
+select customer_id, sum (amount) from payment group by customer_id 
+order by sum (amount) desc;
+
+
+--The following statement uses the GROUP BY clause with the INNER JOIN
+--clause the get the total amount paid by each customer.
+
+--Unlike the previous example, this query joins the payment table with the 
+--customer table and group customers by their names.
+
+select first_name ||''|| last_name full_name, sum (amount) amount
+from payment inner join customer using (customer_id)
+group by full_name order by amount desc;
+
+
+
+--To find the number of payment transactions that each staff has been 
+--processed, you group the rows in the payment table by the values in 
+--the staff_id column and use the COUNT() function to get the number of 
+--transactions:
+
+
+select staff_id, count (payment_id) from payment group by staff_id;
+
+
+
+
+select customer_id, staff_id, sum (amount) from payment 
+group by staff_id, customer_id order by customer_id;
+
+
+--The payment_date is a timestamp column. To group payments by dates, you
+--use the DATE() function to convert timestamps to dates first and
+--then group payments by the result date:
+
+select date (payment_date) paid_date, sum (amount) sum
+from payment group by date (payment_date);
+
+---UNION CLAUSE --with ORDER BY clause
+
+drop table if exists top_rated_films; create table top_rated_films 
+(title varchar not null, release_year smallint);
+
+drop table if exists most_popular_films; create table most_popular_films
+(title varchar not null,release_year smallint);
+
+insert into top_rated_films (title, release_year) 
+values ('The Shawshank Redemption', 1994),
+		('The Godfather', 1972),
+		('12 Angry Men', 1957);
+
+
+insert into most_popular_films (title,release_year)
+values ('An American Pickle', 2020),
+		('The godfather', 1972),
+		('Greyhound', 2020);
+		
+		
+select * from top_rated_films
+		
+select * from most_popular_films
+		
+--we updating a title name, because i used lower-case (gofather) 
+--therefore updating to uppercase (Godfather).
+
+update most_popular_films set title = 'The Godfather'
+where title = 'The godfather';
+		
+
+--below it combines both table data using clause UNION---
+		
+select * from top_rated_films union select * from most_popular_films;
+		
+		
+--below out puts all data, even repeted columns from both tables.
+select * from top_rated_films union all select * from most_popular_films;		
+		
+
+--To sort the result returned by the UNION operator,
+--you place the ORDER BY clause end of the last query like this:
+		
+select * from top_rated_films union all select * from most_popular_films 
+order by title;
+
+
+
+-- SUB QUERY--
+
+
+
+select avg (rental_rate) from film;
+
+
+select film_id, title, rental_rate from film where rental_rate > 2.98
+
+
+
+--To construct a subquery, we put the second query in brackets and use it 
+--in the WHERE clause as an expression:
+
+select film_id, title, rental_rate from film 
+where rental_rate > (
+select avg (rental_rate) from film);
+
+ -- sub query IN operator --
+ 
+ select inventory.film_id from rental inner join inventory
+ on inventory.inventory_id = rental.inventory_id
+ where return_date between '2005-05-29' and '2005-05-30';
+
+
+
+select film_id, title from film where film_id in (
+select inventory.film_id from rental
+	inner join inventory on inventory.inventory_id = rental.inventory_id
+	where return_date between '2005-05-29' and '2005-05-30');
+	
+	
+--EXISTS operator--
+
+select first_name, last_name from customer where exists 
+(select 1 from payment where payment.customer_id = customer.customer_id);
+	
+	
+------update clause ---- 
+
+
+
+CREATE TABLE courses(
+	course_id serial primary key,
+	course_name VARCHAR(255) NOT NULL,
+	description VARCHAR(500),
+	published_date date
+);
+
+INSERT INTO 
+	courses(course_name, description, published_date)
+VALUES
+	('PostgreSQL for Developers','A complete PostgreSQL for Developers','2020-07-13'),
+	('PostgreSQL Admininstration','A PostgreSQL Guide for DBA',NULL),
+	('PostgreSQL High Performance',NULL,NULL),
+	('PostgreSQL Bootcamp','Learn PostgreSQL via Bootcamp','2013-07-11'),
+	('Mastering PostgreSQL','Mastering PostgreSQL in 21 Days','2012-06-30');
+
+
+
+
+select * from courses;
+
+
+--The following statement uses the UPDATE statement to update the course
+--with id 3.It changes the published_date from NULL to '2020-08-01'.
+
+update courses set published_date = '2020-08-01'
+where course_id = 3;
+
+select * from courses where course_id = 3;
+
+
+
+--The following statement updates course id 2. It modifies published_date
+-- of the course to 2020-07-01 and returns the updated course.
+
+update courses set published_date = '2020-07-01' where course_id = 2
+returning *;
+
+--Use the PostgreSQL UPDATE statement to update data in one or more columns of a table.
+--Use the RETURNING clause to return the updated rows from the UPDATE statement
+
